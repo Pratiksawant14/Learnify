@@ -1,0 +1,234 @@
+I will explain the app again in detail, so please remember it as " AI LEARNING."
+
+Problem Statement:
+
+1. Unknown- Unknown:
+When a user wants to learn anything online—whether through YouTube, websites, or courses—they often encounter a common issue, which I refer to as the “unknown-unknown.” This term describes things they are unaware of even existing, or in other words, the knowledge or skills they don’t realize they need to learn.
+
+Example: Suppose a user wants to learn programming but doesn’t know that tools like VS Code, Vibe Coding, GitHub, or various frameworks exist. How can they learn about these tools if they are unaware of their existence? This lack of awareness makes it challenging for them to find specific courses or videos on the subject. The “unknown-unknown” significantly delays the user’s journey to a comprehensive understanding of what they need to learn, much like an index in a book reveals its contents. Unfortunately, such guidance is often lacking on the internet.
+
+1. The Data filtering :
+Even when learners grasp some concepts, common questions arise: Where should I start? Will this video/course cover everything I need? Is this video/course sufficient? Which video should I choose between these two?
+
+There is a wealth of information available online about virtually any topic, and with multiple perspectives and reviews, it can be challenging for users to discern which sources are better, accurate, precise, and sufficient. Many users struggle to navigate the internet or YouTube to find the best content suited to their needs.
+
+Often, a user may watch a particular video only to realize that it did not cover all aspects of the syllabus required, leaving some topics unaddressed. This lack of knowledge and understanding in the field leads to a prevalent issue:  making it difficult for users to determine what is correct and what is not.
+
+1. The Unorganized Data:
+Even when users receive a roadmap or syllabus outlining what to watch, the available videos, data, and courses are often disorganized. Users find themselves navigating multiple websites, various YouTube channels, and countless videos from different sources. The information they need is scattered across the internet, with no centralized location for storing all relevant data. Additionally, the content is not presented in a sequential manner, which would allow users to follow along step by step. There is no personalized space for users, forcing them to repeatedly search the internet for information.
+
+4.UnTracking Progress :
+
+When users learn something, they often lack a way to see how far they’ve come and what still needs to be accomplished. There is no mechanism to assess their improvements, strengths, or areas for growth. Consequently, users cannot evaluate the quality of their work, how much they’ve truly grasped, or their depth of understanding in various subjects. It’s common for users to be unsure whether they have fully comprehended what they’ve learned or if the information is merely stored in their heads. This leaves them questioning how well they understand the subject matter.
+
+LEARNIFIY*
+
+An app that organizes the unstructured knowledge on the internet, personalizing it according to the user’s requirements, level, and field of study.
+
+While many AI tools do parts of this (summarizing videos or generating text plans), an app that holistically acts as a “Curriculum Architect”—building a complete, verify-and-click syllabus from the open web
+
+“Spotify of Education.” Just as Spotify didn’t create music but organized it into playlists, this app doesn’t need to create content; it just needs to organize the world’s fragmented free content into “albums” (courses).
+
+This is the difference between a library (Google) and a University Professor (Learnify).
+
+Filter “A Deep Course” || a compilation of videos (these are the two options available in the app)
+
+A Deep Course:
+This app divides the entire process of course generation into 4 parts.
+Understanding the user, creating a roadmap, organizing the data, and tracking the user’s process.
+
+1. Understanding:
+The app will first assess the user’s learning objectives, including the field of study, the desired depth of knowledge—whether a basic overview or in-depth exploration—and the preferred course duration, language, and detail. Additionally, it will inquire whether the user prefers online paid courses, free options, or learning through YouTube. The app will also consider if the user likes to read documents and research papers, or if they wish to take tests upon completing specific chapters. Lastly, it will establish the level of expertise the user aims to achieve, whether that be expert, master, or extreme. This information will equip the app to tailor its offerings to meet the user’s requirements effectively.
+
+(Now, all of the upcoming parts are very similar to Perplexity, and you can assume it will work very similarly to it, but in our own way.)
+
+DESIGN:
+-------------LEARNFIY----------------------
+DEPTH
+----- Basic ------ || -------Advance----- || —Professional Mastery ----
+DEURATION
+------- 10 Hours+ —||—  5Hours----||---- 20Hours + -------
+LANGUAGE
+--------Hindi ----||---- English ----||----- Hinglish ------
+PREFERENCES
+---- Only Youtube -----|| FREE Courses ----- || FREE & Paid courses —
+& Youtube                       &Youtube
+READING
+------- Book suggestions — ||— reasearch papers —||— Documents–
+TESTS
+------After every chapter-----|| After Every Unit---- || Projects
+
+1. Roadmap:
+
+This is the first part of the creation process, serving as the blueprint for the entire learning journey and the core structure upon which the course will be built.
+
+Once the app understands all the requirements of the user, a personalized roadmap will be created that focuses on both academic accuracy and customization.
+
+The process will involve extensive research, utilizing the internet, books, and documents to compile a detailed syllabus that outlines the subject matter comprehensively. This will be organized from section to section, chapter to chapter, and point to point, covering everything from basic concepts to advanced expertise in a step-by-step manner. Each chapter and the key points within will be clearly marked.
+
+Additionally, practice problem sets will be incorporated into the roadmap after every chapter or set of chapters, based on the user’s requirements. This roadmap will not simply serve as an index of a book but a book itself; it will function as a complete learning resource, containing all necessary details for the next phase, “Organizing the Data.”
+
+Projects will also be developed after specific segments of the course are completed. These projects will start with basic concepts and become progressively more complex if user approval is given at the understanding stage.  These projects will help user understand and judge their own learning and get an idea of what they are for now.
+
+This is how the roadmap/ HANDBOOK looks:
+
+UNIT                                     EG.         UNIT 2: LOOPS & FUNCTIONS
+|                                                                             |
+CHAPTER                                                           LOOPS
+|                                                                             |
+POINT                                                             WHILE LOOP #here the
+|                                                                           | specific video will be added
+CONTENT                                           *ALL THE CONTENT OF THE WHILE LOOP
+#content will be like notes for the
+point.
+
+UNIT1 -> UNIT2 -> UNIT3 -> … -> UNITN
+
+1. Organizing the data :
+
+Now that the roadmap is ready and the AI understands the process, it begins by searching YouTube. Following the specified process, the AI filters videos based on their titles and thumbnails, selecting those that match the specific chapter or point.
+
+Suppose a C++ learning roadmap has been created. The AI will first examine Chapter One: Variables. It will go to YouTube to find all the videos on C++ variables and select the ones that match the topic. The AI will then filter these videos by evaluating their views, likes, comments, and the number of subscribers of the creators.
+
+If practically possible, the AI will watch the entire video and check the timestamps to verify whether the content covers all the required topics on variables. If the video meets the criteria, it will be shortlisted and added to Chapter One of the course. If not, the AI will continue watching other videos, repeating the process until a suitable video is found or a list of good videos is compiled.
+
+*THE PROCESS.
+
+    (PHASE 1: READ )
+
+AI will read and understand the entire handbook to know what to find on YouTube. First, it will review Unit 1 and Chapter 1: Variables and understand the content within it.
+|
+(PHASE 2: RESEARCH )
+Step 1:* Initially, the AI will search for resources related to the topic of the roadmap or handbook. It will look for any videos, playlists, or courses that cover the entire handbook or the majority of its units and chapters. If such resources are found, they will be sent to Phase 3 for verification of their coverage. If no comprehensive video, playlist, or course is found, proceed to Step 2.
+
+Step 2: If resources for the entire handbook are not found, the AI will search for videos, playlists, or courses specifically related to the first unit, starting with Unit 1. If resources for Unit 1 are found, they will be sent to Phase 3. If not, the AI will then look for resources related to the chapters within Unit 1. The core idea is to follow a step-by-step process: if the search for the entire handbook fails, focus on the units, starting with the first unit. The AI will not move on to the next unit until it has fully satisfied the content requirements for the first unit.
+
+Step 3: The AI will search YouTube for videos related to the specific chapters within Unit 1.
+
+If a video for the handbook, specifically for the first unit and first chapter, cannot be found, the user will be asked if they prefer any free or paid courses on the specific topic (if there are no videos available on YouTube). The next steps will be determined based on the user’s preference, but this will only happen if the videos are not available on YouTube, which is uncommon.
+|
+(PHASE 3: SELECTION )
+Select the top videos based on views, likes, comments, and subscribers. Through this verification process, the top few videos will be selected.
+|
+(PHASE 4: VERIFICATION)
+[The AI will watch and analyze videos one by one to determine whether each video contains the required content. If a video meets all the necessary criteria, it will be shortlisted. If it does not meet the criteria, the AI will move on to the next video and repeat the process. This will continue until a suitable video is found. ]
+
+we have changed the verifaction plan .
+1.First the youtube videos will be searched and will be transcribed using the captions they have
+2.if captions are unavalibe then yt-dlt will be used and for the fall back ;
+whisper will be used for audio → transcribtion 
+3.redies wil be used for the cashing .
+all the courses made / videos fetched will be cahed so when any other user seaches the system will not run entirlly from the start and will use the cashes avalible . 
+
+          If the entire verification slot fails, meaning all videos do not meet the required quality standards, then the entire loop will restart for Phase 3. During this phase, new videos will be selected, excluding those from the first slot, before moving on to Phase 4.
+                      |
+         (PHASE 5: ADD )
+
+After the verification, the shortlisted video/videos will be added to the course.
+
+CASE 1: If the AI finds a single video or a playlist/series of videos that covers most of the chapters of our roadmap, then that video or playlist will be directly added to the roadmap(after verification), showing what it covers.
+For example, if there is a complete 11-hour video on C++ available for free on YouTube that addresses most of the roadmap, this video will be added to the roadmap. The same applies to playlists.
+
+UNIT1 -> UNIT2 -> UNIT3 -> … -> UNITN
+|___ ___ ___ ___ ___ ___ ___ ___ __|
+An 11-hour video may be fitted for all three 3 units, if it contains such an
+information
+
+UNIT2 -> WHILE LOOP – FOR LOOP – DO-WHILE LOOP
+|___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ __ |
+It can also be a video that covers an entire chapter or multiple chapters.
+
+UNIT 1   ->   UNIT 2  ->   UNIT 3
+||      ||   |_______|
+#video1       #video2      #video3
+-It can also be a playlist of a creator that covers multiple units or chapters of our handbook.
+
+Case 2: If any video contains at least 80% of the required content, or even 50%, additional videos will be reviewed to determine if they cover the remaining 20% or 50%. If the necessary information is found, both videos will be included in the course. Each video will indicate the amount of information it contains and specify the timestamps for relevant sections to watch.
+(basic)      (important)   (advance)
+LOOPS                           60%            30%             10%
+|                               |---------|    |---------|   |---------|
+WHILE LOOP ----- VIDEO #1 \ VIDEO #2 \ VIDEO #3 ------
+|__ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___  |
+                              Here, the user will select which to prefer.
+
+CASE 3: What if 2, 3, or 4 videos on the same topic are very similar? There are hundreds of videos covering one subject. After filtering, if multiple videos are shortlisted and contain similar content, all of these videos will be displayed for the user. The user can then select which one they want to watch, since they are nearly identical.
+
+However, the filtering process will still rely on factors like views, subscribers, likes, comments, and the content covered. Consequently, no more than four videos will typically be at the same level of relevance.
+
+LOOPS
+|
+WHILE LOOP ----- VIDEO #1 \ VIDEO #2 \ VIDEO #3 ------
+|__ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___  |
+Here, the user will select which to prefer.
+
+-Below the videos, the information about the videos will be given, including views, likes, and the creator.
+
+1. Tracking The Process :
+
+Once the Handbook is ready and the entire course is filled with videos, the user will begin consuming the content. The app will track the user’s progress, including the percentage of the course completed and the number of days the user has watched videos. Consistent days of watching will be marked similarly to Snapchat streaks.
+
+Users will receive a tag based on their level in the course, determined by their completion percentage:
+
+* 10% = Beginner
+* 50% = Pro
+* 80% = Skilled
+* 90% = Master
+
+The tag will advance after completing projects following specific units. For example, if units 2, 3, and 4 are completed, a project will be assigned. If the project is completed correctly, the user will progress from Beginner to Pro.
+
+Throughout the course, there will be tests and projects, with all marks recorded and saved in the user’s profile.
+
+----------- -----------END OF DEEP COURSE----------------------------
+
+Compilation* ( future plan )
+
+1. OVERVIEW:
+This is not an in-depth course; it is designed for users who want a collection of videos on a specific topic. There is no structured course or step-by-step approach, just a compilation of similar videos.
+EXAMPLES ;
+
+CASE 1:
+The user wants podcasts featuring Elon Musk. The app will search YouTube and gather all of Elon Musk’s podcasts.
+This is an easy one, not a big difference from YouTube.
+
+CASE 2:
+
+In this example, the user wants to gather all of Elon Musk’s talks specifically about Tesla and its future. The AI will sift through a variety of sources, including podcasts, interviews, videos, news articles, research papers, and documents. From this extensive pool of content, the AI will filter out only the relevant material focused on “Tesla and its future.”
+
+After the filtration process, the user will receive only the pertinent videos. Additionally, the specific timestamps will be provided to indicate exactly where in each video Elon discusses Tesla.
+
+This approach saves the user time by eliminating the need to browse through unrelated videos and content, allowing them to concentrate solely on information about “Tesla and its future.”
+
+1. The process :
+The process is very similar to the process of deep-course,
+The exact 5-step process will be repeated for this as well.
+READ -> REASEARCH ->SELECTION ->VERIFICATION ->ADDING
+
+----------------------END OF COMPILATION -----------------------------
+**** FUTURE ADD-ONS *****  (we are not gonna do these now )
+
+1. NOTEBOOK:
+This will be a digital note-taking system that automatically writes notes while the user watches a video. Every piece of information conveyed in the video will be summarized and noted step by step in a readable format. The user can view these notes alongside the video and make any changes as desired.
+
+The user can choose how they want the notes to be presented: in detail, as a summary, or as just the main points. The notes will be organized by the system, structured by unit and chapter, making them easily accessible within the course.
+
+It’s like a roadmap that functions as a handbook or textbook, containing all the structured syllabi from the internet and various sources. The videos serve as the primary content, while the digital notebook holds notes taken from those videos.
+
+2. THE PROFESSOR:
+
+Introducing a superior AI assistant designed to support your entire learning journey, not just for a single course but across all courses you pursue on this platform.
+
+This AI, referred to as “The Professor,” will have complete access to your details, requirements, processes, skill level, handbook, notebook, and notes. It functions similarly to Jarvis by managing your learning and knowledge.
+
+The Professor will not only maintain your notes but also learn alongside you, comprehending the course content and your notes. It will assist you with any issues related to specific courses, The user can ask questions beyond the course material, and the AI will respond similarly to ChatGPT and Gemini. It can communicate in multiple languages and assist users in cross-questioning their knowledge. The AI is designed to be a wise teacher.
+
+You can summon The Professor anytime via a voice call, just like you would with Google on an Android device. It doesn’t matter whether you’re in the app or not; whenever you call and inquire about a problem related to your course or notes, the AI will respond and provide solutions.
+
+This transforms your digital notebook into a voice-operated AI assistant that retains everything you have learned.
+
+It will be highly personalized and will grow alongside the user. This AI will strive to understand the user, retaining as much information about them as possible. It will be a great conversationalist, capable of talking, listening, and asking questions. Its goal will be to become the user’s best friend—someone who knows them in depth, including their loves, fears, pains, and overall psychology and philosophy.
+
+This AI will be different from others like Gemini and GPT, which tend to stop when the user becomes silent and prompt the user to talk. Instead, this AI will continuously inquire about the user’s thoughts and feelings, aiming to understand them as thoroughly as possible.
+
+------------------------- -END OF THE IDEA -----------------------------
+
+it is an engineering challenge

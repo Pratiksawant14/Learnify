@@ -1,4 +1,11 @@
 fastapi
 uvicorn
-youtube-transcript-api
+supabase
+python-dotenv
 pydantic
+openai
+chromadb
+youtube-transcript-api
+requests
+python-multipart
+youtube-search-python

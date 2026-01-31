@@ -149,34 +149,50 @@ export default function PromptSection({ onCourseCreated }: { onCourseCreated?: (
                 <div className="w-full max-w-5xl mt-8">
                     <UnderstandingPhase
                         userPrompt={submittedPrompt}
-                        onComplete={(data: UnderstandingData) => {
-                            // Generate course ID
-                            const courseId = `course-${Date.now()}`;
+                        onComplete={async (data: UnderstandingData) => {
+                            try {
+                                // 1. Prepare Request Data
+                                const requestData = {
+                                    topic: submittedPrompt,
+                                    level: data.depth || 'Beginner',
+                                    language: data.language || 'English',
+                                    time_commitment: data.duration || '4 weeks'
+                                };
 
-                            // Create course object
-                            const newCourse = {
-                                id: courseId,
-                                title: submittedPrompt,
-                                type: 'Deep Course',
-                                duration: data.duration || '10+ Hours',
-                                channels: [],
-                                coverGradient: 'from-blue-500 to-purple-500',
-                                roadmap: generateMockRoadmap(submittedPrompt),
-                                understandingData: data,
-                            };
+                                // 2. Call Backend API
+                                // Import dynamically or expected to be available
+                                const { courseService } = await import('@/services/courseService');
+                                const generatedRoadmap = await courseService.generateRoadmap(requestData);
 
-                            // Store course data in localStorage
-                            if (typeof window !== 'undefined') {
-                                localStorage.setItem(`course-${courseId}`, JSON.stringify(newCourse));
+                                // 3. Construct Course Object
+                                const courseId = `course-${Date.now()}`;
+                                const newCourse = {
+                                    id: courseId,
+                                    title: generatedRoadmap.title || submittedPrompt,
+                                    description: generatedRoadmap.description,
+                                    type: 'Deep Course',
+                                    duration: generatedRoadmap.estimated_time || data.duration,
+                                    channels: [],
+                                    coverGradient: 'from-blue-500 to-purple-500',
+                                    roadmap: generatedRoadmap,
+                                    understandingData: data,
+                                };
+
+                                // 4. Store locally and Navigate
+                                if (typeof window !== 'undefined') {
+                                    localStorage.setItem(`course-${courseId}`, JSON.stringify(newCourse));
+                                }
+
+                                if (onCourseCreated) {
+                                    onCourseCreated(newCourse);
+                                }
+
+                                router.push(`/course/${courseId}`);
+
+                            } catch (error) {
+                                console.error("Failed to generate course:", error);
+                                alert("Failed to generate course. Please ensure the backend is running.");
                             }
-
-                            // Notify parent component if callback provided
-                            if (onCourseCreated) {
-                                onCourseCreated(newCourse);
-                            }
-
-                            // Navigate to course page
-                            router.push(`/course/${courseId}`);
                         }}
                     />
                 </div>

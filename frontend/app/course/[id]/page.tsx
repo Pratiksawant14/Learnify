@@ -13,22 +13,16 @@ export default function CoursePage() {
     const [roadmapView, setRoadmapView] = useState<'index' | 'tree'>('index');
 
     useEffect(() => {
-        // Always regenerate roadmap to get latest data (including videos)
-        // Load course data from localStorage on client-side only
+        // Load course data from localStorage
         const stored = localStorage.getItem(`course-${courseId}`);
         if (stored) {
-            const parsedCourse = JSON.parse(stored);
-            // Regenerate roadmap with latest mock data
-            setCourse({
-                ...parsedCourse,
-                roadmap: generateMockRoadmap(parsedCourse.title || 'JavaScript')
-            });
+            setCourse(JSON.parse(stored));
         } else {
-            // Fallback to default course
+            // Fallback (or redirect to error in future)
             setCourse({
                 id: courseId,
-                title: 'JavaScript',
-                roadmap: generateMockRoadmap('JavaScript')
+                title: 'Course Not Found',
+                roadmap: generateMockRoadmap('Error') // Keep fallback for now to prevent crash
             });
         }
     }, [courseId]);

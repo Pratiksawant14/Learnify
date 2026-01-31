@@ -3,10 +3,11 @@ import { supabase } from '@/lib/supabaseClient';
 
 export interface UserProfile {
     id: string;
-    username: string;
-    full_name: string;
+    name: string; // Changed from full_name/username
     bio: string;
-    avatar_url?: string;
+    avatar: string; // Changed from avatar_url
+    // Optional derived fields if needed
+    username?: string; // Compatibility
 }
 
 export const profileService = {
@@ -18,7 +19,10 @@ export const profileService = {
             .single();
 
         if (error) {
-            console.error('Error fetching profile:', error);
+            // PGRST116: JSON object returned no rows (not an actual error for us, just means no profile yet)
+            if (error.code !== 'PGRST116') {
+                console.error('Error fetching profile:', error);
+            }
             return null;
         }
         return data;

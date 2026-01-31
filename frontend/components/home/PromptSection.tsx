@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, Plus, X } from 'lucide-react';
 import UnderstandingPhase, { UnderstandingData } from './UnderstandingPhase';
-import { generateMockRoadmap } from '@/lib/mock-data/roadmaps';
 
 const categories = [
     'Coding',

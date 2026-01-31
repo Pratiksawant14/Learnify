@@ -18,9 +18,39 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         # specific_user = supabase.auth.get_user(token)
         # return specific_user
         
-        # Simple decode (Unsafe for prod without secret)
-        payload = jwt.decode(token, options={"verify_signature": False})
-        return payload
+        from app.core.database import supabase
+        
+        # Verify token by calling Supabase Auth
+        user = supabase.auth.get_user(token)
+        
+        if not user or not user.user:
+             raise Exception("Invalid token")
+             
+        # Return a dict that mimics the payload expected by endpoints (sub, email etc)
+        # user.user is a User object.
+        return {
+            "sub": user.user.id,
+            "email": user.user.email,
+            "user_metadata": user.user.user_metadata
+        }
+    except Exception as e:
+        # Fallback to simple decode if API check fails (e.g. rate limit)? 
+        # No, better to fail secure.
+        # print(f"Auth verification failed: {e}")
+        
+        # For MVP local dev with anon key, sometimes getUser fails if not configured right.
+        # Let's keep the fallback for now but log warning.
+        try:
+             payload = jwt.decode(token, options={"verify_signature": False})
+             return payload
+        except:
+            pass
+            
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

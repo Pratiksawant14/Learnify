@@ -2,43 +2,49 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { courseService } from '@/services/courseService';
 import CosmicBackground from '@/components/home/CosmicBackground';
 import CourseCard from '@/components/home/CourseCard';
-import { mockUserCourses } from '@/lib/mock-data/courses';
 
 export default function MyCoursesPage() {
+    const { user } = useAuth();
     const [courses, setCourses] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Start with mock courses
-        let allCourses = [...mockUserCourses];
+        const fetchCourses = async () => {
+            if (user) {
+                try {
+                    const { supabase } = await import('@/lib/supabaseClient');
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const token = session?.access_token;
 
-        // Fetch user-created courses from localStorage
-        if (typeof window !== 'undefined') {
-            const storedCourses = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith('course-')) {
-                    try {
-                        const courseStr = localStorage.getItem(key);
-                        if (courseStr) {
-                            const courseData = JSON.parse(courseStr);
-                            storedCourses.push(courseData);
-                        }
-                    } catch (e) {
-                        console.error('Failed to parse stored course:', e);
+                    if (token) {
+                        const serverCourses = await courseService.getUserCourses(token);
+                        // Map to UI format
+                        const mapped = serverCourses.map((c: any) => ({
+                            id: c.id,
+                            title: c.title,
+                            type: 'Course', // Default
+                            duration: 'Self-paced',
+                            channels: c.modules_count || 5, // Approximate or fetch
+                            coverGradient: 'from-blue-500 to-indigo-600' // Default
+                        }));
+                        setCourses(mapped);
                     }
+                } catch (e) {
+                    console.error(e);
                 }
+            } else {
+                setCourses([]);
             }
-            // Add stored courses to the beginning
-            const storedIds = new Set(storedCourses.map(c => c.id));
-            const distinctMockCourses = mockUserCourses.filter(c => !storedIds.has(c.id));
+            setIsLoading(false);
+        };
+        fetchCourses();
+    }, [user]);
 
-            allCourses = [...storedCourses.reverse(), ...distinctMockCourses];
-        }
-
-        setCourses(allCourses);
-    }, []);
+    if (isLoading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">Loading...</div>;
 
     return (
         <div className="min-h-screen relative overflow-hidden">

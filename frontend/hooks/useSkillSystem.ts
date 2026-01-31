@@ -13,6 +13,7 @@ export function useSkillSystem() {
     const [isLoaded, setIsLoaded] = useState(false);
 
     // 1. Load Initial Data (Local then Server)
+    // 1. Load Initial Data (Local then Server)
     useEffect(() => {
         const loadSkills = async () => {
             // A. Local State
@@ -34,20 +35,26 @@ export function useSkillSystem() {
             // B. Server State (if logged in)
             if (user) {
                 try {
-                    const serverSkills = await skillService.getUserSkills(user.id);
-                    if (serverSkills.length > 0) {
-                        // Merge Server > Local > Default
-                        merged = merged.map(localSkill => {
-                            const serverSkill = serverSkills.find(ss => ss.id === localSkill.id);
-                            if (serverSkill && typeof serverSkill.xp === 'number') {
-                                return {
-                                    ...localSkill,
-                                    xp: serverSkill.xp,
-                                    level: calculateLevel(serverSkill.xp)
-                                };
-                            }
-                            return localSkill;
-                        });
+                    const { supabase } = await import('@/lib/supabaseClient');
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const token = session?.access_token;
+
+                    if (token) {
+                        const serverSkills = await skillService.getUserSkills(token);
+                        if (serverSkills.length > 0) {
+                            // Merge Server > Local > Default
+                            merged = merged.map(localSkill => {
+                                const serverSkill = serverSkills.find(ss => ss.id === localSkill.id);
+                                if (serverSkill && typeof serverSkill.xp === 'number') {
+                                    return {
+                                        ...localSkill,
+                                        xp: serverSkill.xp,
+                                        level: calculateLevel(serverSkill.xp)
+                                    };
+                                }
+                                return localSkill;
+                            });
+                        }
                     }
                 } catch (e) {
                     console.error("Failed to sync skills from server", e);
@@ -70,10 +77,9 @@ export function useSkillSystem() {
 
     const awardXP = async (lessonId: string, lessonTitle: string) => {
         const rewards = getSkillsForLesson(lessonTitle);
-        let changedSkills: Skill[] = [];
 
-        setSkills(prevSkills => {
-            const nextSkills = prevSkills.map(skill => {
+        setSkills((prevSkills: Skill[]) => {
+            const nextSkills = prevSkills.map((skill: Skill) => {
                 const xpGain = rewards[skill.id] || 0;
                 if (xpGain === 0) return skill;
 
@@ -83,20 +89,15 @@ export function useSkillSystem() {
                     xp: newXp,
                     level: calculateLevel(newXp)
                 };
-                changedSkills.push(newSkill);
                 return newSkill;
             });
-
-            // Sync to Server (Side Effect)
-            if (user && changedSkills.length > 0) {
-                skillService.syncSkills(user.id, changedSkills).catch(console.error);
-            }
-
+            // We rely on 'markLessonComplete' in Backend to persist XP changes.
+            // This is just an optimistic UI update.
             return nextSkills;
         });
     };
 
-    const getSkill = (id: string) => skills.find(s => s.id === id);
+    const getSkill = (id: string) => skills.find((s: Skill) => s.id === id);
 
     return {
         skills,

@@ -23,28 +23,35 @@ export const useCourseProgress = (courseId: string, roadmap: any) => {
         if (!courseId) return;
 
         const loadProgress = async () => {
-            // 1. Try Local Storage first (for speed/offline/fallback)
+            // 1. Try Local Storage first
             const stored = localStorage.getItem(`progress-${courseId}`);
             let localData = stored ? JSON.parse(stored) : null;
 
             if (user) {
-                // 2. If User, fetch from DB and merge/override
+                // 2. If User, fetch from DB
                 try {
-                    const serverCompleted = await progressService.getCompletedLessons(user.id);
+                    // Need token
+                    const { supabase } = await import('@/lib/supabaseClient');
+                    const { data: { session } } = await supabase.auth.getSession();
+                    const token = session?.access_token;
 
-                    // Merge logic: simpler is union of both
-                    const mergedCompleted = Array.from(new Set([
-                        ...(localData?.completedLessons || []),
-                        ...serverCompleted
-                    ]));
+                    if (token) {
+                        const serverCompleted = await progressService.getCompletedLessons(token);
 
-                    setProgress({
-                        completedLessons: mergedCompleted,
-                        lastAccessedLesson: localData?.lastAccessedLesson || null, // Not syncing lastAccessed yet
-                        totalTimeSpent: localData?.totalTimeSpent || (mergedCompleted.length * 15)
-                    });
+                        // Merge logic
+                        const mergedCompleted = Array.from(new Set([
+                            ...(localData?.completedLessons || []),
+                            ...serverCompleted
+                        ]));
+
+                        setProgress({
+                            completedLessons: mergedCompleted,
+                            lastAccessedLesson: localData?.lastAccessedLesson || null,
+                            totalTimeSpent: localData?.totalTimeSpent || (mergedCompleted.length * 15)
+                        });
+                    }
                 } catch (e) {
-                    console.error("Sync failed, utilizing local data", e);
+                    console.error("Sync failed", e);
                     if (localData) setProgress(localData);
                 }
             } else {
@@ -59,13 +66,6 @@ export const useCourseProgress = (courseId: string, roadmap: any) => {
     const saveProgress = async (newProgress: CourseProgress) => {
         // Always save local
         localStorage.setItem(`progress-${courseId}`, JSON.stringify(newProgress));
-
-        // If user, save to DB (Fire and forget basically)
-        if (user) {
-            // We only sync completion additions in this simplified model
-            // Find newly added lessons? Or just rely on the granular markLessonComplete calls?
-            // The hooks calls 'markLessonComplete', so we should trigger DB calls there.
-        }
     };
 
     const markLessonComplete = async (lessonId: string) => {
@@ -77,10 +77,16 @@ export const useCourseProgress = (courseId: string, roadmap: any) => {
             };
 
             setProgress(newProgress);
-            saveProgress(newProgress); // Save local
+            // Save local
+            localStorage.setItem(`progress-${courseId}`, JSON.stringify(newProgress));
 
             if (user) {
-                await progressService.markLessonComplete(user.id, lessonId, courseId);
+                const { supabase } = await import('@/lib/supabaseClient');
+                const { data: { session } } = await supabase.auth.getSession();
+                const token = session?.access_token;
+                if (token) {
+                    await progressService.markLessonComplete(token, lessonId, courseId);
+                }
             }
         }
     };

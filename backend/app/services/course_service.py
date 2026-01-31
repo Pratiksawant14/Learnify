@@ -1,10 +1,12 @@
 from app.core.database import supabase
 from app.schemas.course import CourseCreate
+from app.core.config import settings
+from supabase import create_client, Client
 import json
 
 class CourseService:
     @staticmethod
-    def create_course(course_data: dict, user_id: str):
+    def create_course(course_data: dict, user_id: str, token: str = None):
         # Insert into courses table
         data = {
             "title": course_data["title"],
@@ -13,7 +15,25 @@ class CourseService:
             "owner_id": user_id
         }
         
-        response = supabase.table("courses").insert(data).execute()
+        # Use a scoped client with the user's token for RLS
+        client = supabase
+        if token:
+            try:
+                # Re-instantiate a fresh client to be safe
+                client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+                # Force headers directly to be sure
+                client.postgrest.headers.update({"Authorization": f"Bearer {token}"})
+            except Exception as e:
+                print(f"Error creating scoped client: {e}")
+                # Fallback to global client (will likely fail RLS but worth a try or just crash later)
+                client = supabase
+
+        try:
+            response = client.table("courses").insert(data).execute()
+        except Exception as e:
+            print(f"Error creating course in DB: {e}")
+            raise e
+            
         course_id = response.data[0]["id"] if response.data else None
         
         if course_id:
@@ -39,7 +59,13 @@ class CourseService:
                     global_index += 1
             
             if lessons_payload:
-                supabase.table("lessons").insert(lessons_payload).execute()
+                try:
+                    client.table("lessons").insert(lessons_payload).execute()
+                except Exception as e:
+                    print(f"Error inserting lessons: {e}")
+                    # Don't fail the whole course creation if lessons fail? 
+                    # Or maybe we should. But for now, let's log and continue so the course at least exists.
+                    pass
                 
         return response.data[0] if response.data else None
 

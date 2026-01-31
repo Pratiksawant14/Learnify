@@ -90,7 +90,7 @@ export const courseService = {
                 modules: courseData.roadmap.modules // Use the original modules for backend processing
             };
 
-            const response = await fetch(`${API_URL}/courses/`, {
+            const response = await fetch(`${API_URL}/courses/`, { // Added trailing slash back
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,6 +108,22 @@ export const courseService = {
         } catch (error) {
             console.error('Error in saveCourse:', error);
             throw error;
+        }
+    },
+
+    async getUserCourses(token: string) {
+        try {
+            const response = await fetch(`${API_URL}/courses/`, { // Added trailing slash back
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) return [];
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+            return [];
         }
     }
 };

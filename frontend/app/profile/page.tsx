@@ -9,14 +9,7 @@ import AuthModal from '@/components/auth/AuthModal';
 import EditProfileModal from '@/components/profile/EditProfileModal';
 
 import ProfileHeader from '@/components/profile/ProfileHeader';
-import InterestsSection from '@/components/profile/InterestsSection';
-import ActivityHeatmap from '@/components/profile/ActivityHeatmap';
-import RankingsSection from '@/components/profile/RankingsSection';
 import SkillPerformanceView from '@/components/profile/SkillPerformanceView';
-import FriendsList from '@/components/profile/FriendsList';
-import MiniLeaderboard from '@/components/profile/MiniLeaderboard';
-import SocialSignals from '@/components/profile/SocialSignals';
-import CommunitySection from '@/components/community/CommunitySection';
 
 export default function ProfilePage() {
     const { user, signOut } = useAuth();
@@ -45,9 +38,9 @@ export default function ProfilePage() {
 
     // Transform DB profile to UI format
     const userData = profile ? {
-        name: profile.full_name || 'Anonymous User',
-        username: profile.username || 'user',
-        initials: (profile.full_name || 'U').substring(0, 2).toUpperCase(),
+        name: profile.name || 'Anonymous User',
+        username: profile.username || ('@' + (profile.name || 'user').replace(/\s+/g, '').toLowerCase()),
+        initials: (profile.name || 'U').substring(0, 2).toUpperCase(),
         bio: profile.bio || 'New to Learnify'
     } : undefined; // Fallback to default in Component
 
@@ -94,52 +87,13 @@ export default function ProfilePage() {
                     />
                 </section>
 
-                {/* 2 & 3. Interests & Heatmap Grid */}
-                <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-8 duration-700 delay-100">
-                    <InterestsSection />
-                    <ActivityHeatmap />
-                </section>
-
-                {/* 4. Rankings */}
+                {/* 2. Skills Display */}
                 <section className="animate-in fade-in slide-in-from-top-8 duration-700 delay-200">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-white">Global Standings</h2>
-                        <div className="h-px flex-1 bg-slate-800 ml-6"></div>
-                    </div>
-                    <RankingsSection />
-                </section>
-
-                {/* 5. Communities (Phase 12) */}
-                <CommunitySection />
-
-                {/* 5 & 6. Skills & Graph */}
-                <section className="animate-in fade-in slide-in-from-top-8 duration-700 delay-300">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-bold text-white">Skill Mastery</h2>
                         <div className="h-px flex-1 bg-slate-800 ml-6"></div>
                     </div>
                     <SkillPerformanceView />
-                </section>
-
-                {/* 7. Social Section (Phase 11) */}
-                <section className="animate-in fade-in slide-in-from-top-8 duration-700 delay-500">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-white">Social Circle</h2>
-                        <div className="h-px flex-1 bg-slate-800 ml-6"></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Friends List (Main) */}
-                        <div className="lg:col-span-2">
-                            <FriendsList />
-                        </div>
-
-                        {/* Leaderboard & Signals (Sidebar) */}
-                        <div className="lg:col-span-1 space-y-6">
-                            <MiniLeaderboard />
-                            <SocialSignals />
-                        </div>
-                    </div>
                 </section>
             </main>
 

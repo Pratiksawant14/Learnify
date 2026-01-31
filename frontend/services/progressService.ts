@@ -9,42 +9,39 @@ export interface ProgressRecord {
     completed_at: string;
 }
 
-export const progressService = {
-    async getCompletedLessons(userId: string): Promise<string[]> {
-        const { data, error } = await supabase
-            .from('user_progress')
-            .select('lesson_id')
-            .eq('user_id', userId);
+const API_URL = 'http://localhost:8000'; // Make this env var later
 
-        if (error) {
-            console.error('Error fetching progress:', error);
+export const progressService = {
+    async getCompletedLessons(token: string): Promise<string[]> {
+        if (!token) return [];
+        try {
+            const response = await fetch(`${API_URL}/progress/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) return [];
+
+            const data = await response.json();
+            // Backend returns list of progress objects. Map to lesson_ids
+            return data.map((p: any) => p.lesson_id);
+        } catch (e) {
+            console.error(e);
             return [];
         }
-        return data.map(row => row.lesson_id);
     },
 
-    async markLessonComplete(userId: string, lessonId: string, courseId?: string) {
-        // Check if exists
-        const { data: existing } = await supabase
-            .from('user_progress')
-            .select('id')
-            .eq('user_id', userId)
-            .eq('lesson_id', lessonId)
-            .single();
-
-        if (existing) return; // Already done
-
-        const { error } = await supabase
-            .from('user_progress')
-            .insert({
-                user_id: userId,
-                lesson_id: lessonId,
-                course_id: courseId || 'default-course',
-                completed_at: new Date().toISOString()
+    async markLessonComplete(token: string, lessonId: string, courseId?: string) {
+        if (!token) return;
+        try {
+            await fetch(`${API_URL}/progress/complete`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ lesson_id: lessonId, user_id: 'ignored' })
             });
-
-        if (error) {
-            console.error('Error saving progress:', error);
+        } catch (e) {
+            console.error('Error saving progress:', e);
         }
     }
 };

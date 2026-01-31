@@ -17,15 +17,15 @@ export default function EditProfileModal({ isOpen, onClose, currentProfile, onPr
     const [isLoading, setIsLoading] = useState(false);
 
     // Form State
-    const [fullName, setFullName] = useState('');
-    const [username, setUsername] = useState('');
+    const [name, setName] = useState('');
+    // const [username, setUsername] = useState(''); // Backend has no username col
     const [bio, setBio] = useState('');
 
     // Load initial data when valid profile is passed
     useEffect(() => {
         if (currentProfile) {
-            setFullName(currentProfile.full_name || '');
-            setUsername(currentProfile.username || '');
+            setName(currentProfile.name || '');
+            // setUsername(currentProfile.username || '');
             setBio(currentProfile.bio || '');
         }
     }, [currentProfile, isOpen]);
@@ -38,8 +38,8 @@ export default function EditProfileModal({ isOpen, onClose, currentProfile, onPr
 
         try {
             await profileService.updateProfile(user.id, {
-                full_name: fullName,
-                username: username,
+                name: name,
+                // username: username,
                 bio: bio
             });
             onProfileUpdated();
@@ -64,33 +64,17 @@ export default function EditProfileModal({ isOpen, onClose, currentProfile, onPr
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     <div className="space-y-4">
-                        {/* Full Name */}
+                        {/* Display Name */}
                         <div className="space-y-2">
-                            <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">Full Name</label>
+                            <label className="text-xs text-slate-500 font-bold uppercase tracking-wider">Display Name</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
                                 <input
                                     type="text"
-                                    value={fullName}
-                                    onChange={(e) => setFullName(e.target.value)}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-700"
                                     placeholder="John Doe"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Username */}
-                        <div className="space-y-2">
-                            <label className="text-xs text-slate-500 font-bold uppercase tracking-wider pl-1">Username</label>
-                            <div className="relative">
-                                <AtSign className="absolute left-3 top-3 w-4 h-4 text-slate-500" />
-                                <input
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-700 font-mono text-sm"
-                                    placeholder="johndoe"
                                     required
                                 />
                             </div>

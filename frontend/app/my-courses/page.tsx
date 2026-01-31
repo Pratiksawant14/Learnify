@@ -28,7 +28,11 @@ export default function MyCoursesPage() {
                             title: c.title,
                             type: 'Course', // Default
                             duration: 'Self-paced',
-                            channels: c.modules_count || 5, // Approximate or fetch
+                            channels: Array(c.modules_count || 3).fill(null).map((_, i) => ({
+                                id: `ch-${i}`,
+                                name: `Channel ${i + 1}`,
+                                thumbnail: ''
+                            })), // Mock channels for now to satisfy CourseCard prop
                             coverGradient: 'from-blue-500 to-indigo-600' // Default
                         }));
                         setCourses(mapped);

@@ -106,8 +106,8 @@ export const useCourseProgress = (courseId: string, roadmap: any) => {
     };
 
     // Flatten roadmap to determine sequence
-    const flattenedLessons = roadmap?.units.reduce((acc: any[], unit: any) => {
-        unit.chapters.forEach((chapter: any) => {
+    const flattenedLessons = roadmap?.units?.reduce((acc: any[], unit: any) => {
+        unit.chapters?.forEach((chapter: any) => {
             if (chapter.lessons) {
                 chapter.lessons.forEach((lesson: any) => acc.push(lesson.id));
             }

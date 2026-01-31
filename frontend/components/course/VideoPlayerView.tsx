@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, FileText, Link as LinkIcon, Info, CheckCircle, Circle } from 'lucide-react';
+import { api } from '@/services/api';
 
 const transcriptCache = new Map<string, any>();
 
@@ -64,11 +65,7 @@ export default function VideoPlayerView({
         // Clear previous data if it is from a different video
         setTranscriptData(prev => (prev as any)?.videoId === safeVideoId ? prev : null);
 
-        fetch(`http://localhost:8000/transcripts/${safeVideoId}`)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to fetch');
-                return res.json();
-            })
+        api.getTranscript(safeVideoId)
             .then(data => {
                 const dataWithId = { ...data, videoId: safeVideoId };
                 transcriptCache.set(safeVideoId, dataWithId);
@@ -101,15 +98,10 @@ export default function VideoPlayerView({
         setLoadingSummary(true);
         setExplanationData(null); // Reset explanation on video change/refresh logic
 
-        fetch('http://localhost:8000/ai/summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ videoId: safeVideoId, lessonTitle: lesson.title })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to fetch summary");
-                return res.json();
-            })
+        setLoadingSummary(true);
+        setExplanationData(null); // Reset explanation on video change/refresh logic
+
+        api.getSummary(safeVideoId, lesson.title)
             .then(data => {
                 setSummaryData({ ...data, videoId: safeVideoId });
             })
@@ -120,15 +112,7 @@ export default function VideoPlayerView({
 
     const handleExplain = (mode: 'simple' | 'example' | 'deep') => {
         setLoadingExplanation(true);
-        fetch('http://localhost:8000/ai/explain', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ videoId: safeVideoId, mode })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to fetch explanation");
-                return res.json();
-            })
+        api.explainConcept(safeVideoId, mode)
             .then(data => {
                 setExplanationData(data);
             })
@@ -147,19 +131,7 @@ export default function VideoPlayerView({
         // If clicking a preset, update the input too
         setQuestion(q);
 
-        fetch('http://localhost:8000/ai/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                videoId: safeVideoId,
-                lessonTitle: lesson?.title || "Lesson",
-                question: q
-            })
-        })
-            .then(res => {
-                if (!res.ok) throw new Error("Failed to get answer");
-                return res.json();
-            })
+        api.askQuestion(safeVideoId, lesson?.title || "Lesson", q)
             .then(data => {
                 setAnswer(data.answer);
             })

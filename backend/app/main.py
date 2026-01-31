@@ -49,3 +49,10 @@ def health_check():
 app.include_router(roadmap.router, prefix="/roadmap", tags=["roadmap"])
 app.include_router(courses.router, prefix="/courses", tags=["courses"])
 app.include_router(progress.router, prefix="/progress", tags=["progress"])
+from app.routers import video_pipeline
+app.include_router(video_pipeline.router, prefix="/api/courses", tags=["video-pipeline"])
+
+from app.routers import video_player
+# Note: Frontend hits http://localhost:8000/transcripts directly, so no prefix for now or we match frontend expectation
+# Frontend expects: /transcripts/{id}, /ai/summary, etc.
+app.include_router(video_player.router, tags=["video-player"])

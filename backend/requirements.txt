@@ -9,3 +9,5 @@ youtube-transcript-api
 requests
 python-multipart
 youtube-search-python
+google-api-python-client
+yt-dlp

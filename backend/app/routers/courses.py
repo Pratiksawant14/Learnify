@@ -27,14 +27,21 @@ async def create_course(
         raise HTTPException(status_code=400, detail="Could not create course")
     
     # Trigger RAG processing in background
+    # Trigger Video Pipeline in background
     if result.get("id"):
-        background_tasks.add_task(course_service.process_course_content, result["id"])
+        from app.services.video_pipeline.orchestrator import run_assembly_pipeline
+        from app.utils.job_queue import job_manager
+        
+        # Create a job ID for consistency, though user might not see it immediately
+        job_id = job_manager.create_job(result["id"], "assemble_videos_auto")
+        background_tasks.add_task(run_assembly_pipeline, result["id"], job_id, False)
         
     return result
 
 @router.get("/", response_model=List[CourseResponse])
 async def get_courses(user_payload: dict = Depends(get_current_user)):
     user_id = user_payload.get("sub")
+    print(f"DEBUG: get_courses called for {user_id}")
     return course_service.get_courses_by_user(user_id)
 
 @router.get("/{course_id}", response_model=CourseResponse)

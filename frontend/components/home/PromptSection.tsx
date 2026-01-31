@@ -165,7 +165,7 @@ export default function PromptSection({ onCourseCreated }: { onCourseCreated?: (
                                 const generatedRoadmap = await courseService.generateRoadmap(requestData);
 
                                 // 3. Construct Course Object
-                                const courseId = `course-${Date.now()}`;
+                                const courseId = generatedRoadmap.id || `course-${Date.now()}`;
                                 const newCourse = {
                                     id: courseId,
                                     title: generatedRoadmap.title || submittedPrompt,
@@ -181,6 +181,29 @@ export default function PromptSection({ onCourseCreated }: { onCourseCreated?: (
                                 // 4. Store locally and Navigate
                                 if (typeof window !== 'undefined') {
                                     localStorage.setItem(`course-${courseId}`, JSON.stringify(newCourse));
+                                }
+
+                                try {
+                                    // 5. Save to DB if user is logged in
+                                    // Access token via Supabase client directly or authService if needed
+                                    // For now, simpler to skip auth check here or assume public if no token?
+                                    // Since we don't have access to 'user' object from hook inside this callback without passing it,
+                                    // we can import authService.
+                                    const { authService } = await import('@/services/authService');
+                                    const user = await authService.getCurrentUser();
+
+                                    if (user) {
+                                        const { supabase } = await import('@/lib/supabaseClient');
+                                        const { data: { session } } = await supabase.auth.getSession();
+                                        const token = session?.access_token;
+
+                                        if (token) {
+                                            await courseService.saveCourse(newCourse, token);
+                                            console.log("Course saved to DB!");
+                                        }
+                                    }
+                                } catch (dbError) {
+                                    console.warn("Failed to save to DB (Continuing purely local):", dbError);
                                 }
 
                                 if (onCourseCreated) {

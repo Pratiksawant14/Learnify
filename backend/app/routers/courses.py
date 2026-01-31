@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from app.schemas.course import CourseCreate, CourseResponse
 from app.services.course_service import course_service
+from app.core.security import get_current_user
 from typing import List
 
 router = APIRouter()
@@ -10,12 +11,19 @@ router = APIRouter()
 # But prompt says "decode Supabase JWT".
 
 @router.post("/", response_model=CourseResponse)
-async def create_course(course: dict, user_id: str = "test-user-id"): 
-    # TODO: Extract user_id from JWT
-    # For now, simplistic implementation
+async def create_course(course: dict, background_tasks: BackgroundTasks, user_payload: dict = Depends(get_current_user)):
+    user_id = user_payload.get("sub") # Supabase 'sub' claim is the user ID
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid user token: missing 'sub'")
+        
     result = course_service.create_course(course, user_id)
     if not result:
         raise HTTPException(status_code=400, detail="Could not create course")
+    
+    # Trigger RAG processing in background
+    if result.get("id"):
+        background_tasks.add_task(course_service.process_course_content, result["id"])
+        
     return result
 
 @router.get("/", response_model=List[CourseResponse])

@@ -64,9 +64,50 @@ export const courseService = {
         };
     },
 
-    async saveCourse(courseData: any) {
-        // Will implement saving later when user confirms
-        // For now, we rely on local storage or just passing data
-        return courseData;
+    async saveCourse(courseData: any, token: string) {
+        try {
+            // We need to send the ORIGINAL backend structure if possible, or mapping it back.
+            // Since we stored the mapped structure in the frontend, pass it as is (the backend create_course expects 'roadmap_json' which is flexible).
+            // Ideally, we passed 'roadmap_json' in the `roadmap` body. 
+
+            // However, our backend create_course expects {title, description..., modules: []}
+            // The frontend course object is complex. 
+            // We should strip the frontend-specific wrappers if we want to be clean, 
+            // OR just save the whole blob and let the backend extract what it needs.
+
+            // Let's rely on the fact that `courseData.roadmap` likely contains the backend structure if we kept it,
+            // OR we just send the `courseData` as the JSON.
+            // But wait, the backend `CourseService.create_course` iterates `course_data.get("modules")`. 
+
+            // Re-construct the backend expected format from Frontend data if needed.
+            // Currently `courseData.roadmap` is the object returned by `mapBackendToFrontend`.
+            // `mapBackendToFrontend` returns `{ ...backendData, units: [...] }`.
+            // So `backendData.modules` is still there!
+
+            const payload = {
+                title: courseData.title,
+                description: courseData.description,
+                modules: courseData.roadmap.modules // Use the original modules for backend processing
+            };
+
+            const response = await fetch(`${API_URL}/courses/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to save course');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error in saveCourse:', error);
+            throw error;
+        }
     }
 };

@@ -71,7 +71,7 @@ class CourseService:
 
     @staticmethod
     def get_courses_by_user(user_id: str):
-        response = supabase.table("courses").select("*").eq("owner_id", user_id).execute()
+        response = supabase.table("courses").select("*").eq("owner_id", user_id).order("created_at", desc=True).execute()
         return response.data
 
     @staticmethod

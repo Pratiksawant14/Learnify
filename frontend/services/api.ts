@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 // Get API URL from env or default to localhost
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+console.log("API Service Initialized with URL:", API_URL);
 
 const apiClient = axios.create({
     baseURL: API_URL,

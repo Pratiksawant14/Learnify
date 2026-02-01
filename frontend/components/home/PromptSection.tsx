@@ -163,9 +163,14 @@ export default function PromptSection({ onCourseCreated }: { onCourseCreated?: (
                                 const { courseService } = await import('@/services/courseService');
                                 const generatedRoadmap = await courseService.generateRoadmap(requestData);
 
-                                // 3. Construct Course Object
-                                const courseId = generatedRoadmap.id || `course-${Date.now()}`;
-                                const newCourse = {
+                                console.log("🔍 RAW BACKEND ROADMAP:", JSON.stringify(generatedRoadmap, null, 2));
+                                console.log("🔍 First Module:", generatedRoadmap.modules?.[0]);
+                                console.log("🔍 First Lesson:", generatedRoadmap.modules?.[0]?.lessons?.[0]);
+                                console.log("🔍 First Lesson Video:", generatedRoadmap.modules?.[0]?.lessons?.[0]?.video);
+
+                                // 3. Construct Course Object (Temporary ID)
+                                let courseId = globalThis.crypto?.randomUUID() || `course-${Date.now()}`;
+                                const tempCourse = {
                                     id: courseId,
                                     title: generatedRoadmap.title || submittedPrompt,
                                     description: generatedRoadmap.description,
@@ -177,36 +182,35 @@ export default function PromptSection({ onCourseCreated }: { onCourseCreated?: (
                                     understandingData: data,
                                 };
 
-                                // 4. Store locally and Navigate
+                                // 4. Store locally (Legacy/Fallback)
                                 if (typeof window !== 'undefined') {
-                                    localStorage.setItem(`course-${courseId}`, JSON.stringify(newCourse));
+                                    localStorage.setItem(`course-${courseId}`, JSON.stringify(tempCourse));
                                 }
 
                                 try {
-                                    // 5. Save to DB if user is logged in
-                                    // Access token via Supabase client directly or authService if needed
-                                    // For now, simpler to skip auth check here or assume public if no token?
-                                    // Since we don't have access to 'user' object from hook inside this callback without passing it,
-                                    // we can import authService.
-                                    const { authService } = await import('@/services/authService');
-                                    const user = await authService.getCurrentUser();
+                                    // 5. Save to DB
+                                    const { supabase } = await import('@/lib/supabaseClient');
+                                    const { data: { session } } = await supabase.auth.getSession();
+                                    const token = session?.access_token;
 
-                                    if (user) {
-                                        const { supabase } = await import('@/lib/supabaseClient');
-                                        const { data: { session } } = await supabase.auth.getSession();
-                                        const token = session?.access_token;
+                                    if (token) {
+                                        const savedCourse = await courseService.saveCourse(tempCourse, token);
+                                        console.log("Course saved to DB:", savedCourse);
 
-                                        if (token) {
-                                            await courseService.saveCourse(newCourse, token);
-                                            console.log("Course saved to DB!");
+                                        // CRITICAL: Use the REAL ID from the database
+                                        if (savedCourse && savedCourse.id) {
+                                            courseId = savedCourse.id;
                                         }
+                                    } else {
+                                        console.warn("No auth token found, course will typically fail to load from backend.");
                                     }
                                 } catch (dbError) {
-                                    console.warn("Failed to save to DB (Continuing purely local):", dbError);
+                                    console.error("Failed to save to DB:", dbError);
+                                    // Fallback? If save fails, the backend fetch will likely 404.
                                 }
 
                                 if (onCourseCreated) {
-                                    onCourseCreated(newCourse);
+                                    onCourseCreated(tempCourse);
                                 }
 
                                 router.push(`/course/${courseId}`);

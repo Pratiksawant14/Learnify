@@ -12,6 +12,7 @@ class VideoCandidate(BaseModel):
     published_at: str = ""
     has_captions: bool = False
     meta_score: float = 0.0
+    description: str = ""
     
     # Flags
     is_shortlisted: bool = True

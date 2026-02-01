@@ -13,22 +13,25 @@ class RoadmapService:
             print(f"DEBUG: OpenAI Generation Failed: {e}")
             raise e
         
-        # 2. Enrich with YouTube videos
+        # 2. Enrich with YouTube videos (with timeout protection)
         print(f"Enriching roadmap for {topic}...")
         for module in roadmap_json.get("modules", []):
             for lesson in module.get("lessons", []):
                 query = lesson.get("video_query")
                 if query:
-                    # Search logic
+                    # Search logic with timeout
                     search_q = f"{query} {language} educational"
                     print(f"DEBUG: Searching video for: {search_q}")
                     try:
                         videos = video_service.search_video(search_q, limit=1)
                         if videos:
                             lesson["video"] = videos[0]
+                            print(f"✅ Attached video: {videos[0]['title'][:50]}")
+                        else:
+                            print(f"⚠️ No video found for: {search_q}")
                     except Exception as e:
-                        print(f"DEBUG: Video Search Failed for '{search_q}': {e}")
-                        # Continue without video instead of failing whole request
+                        print(f"⚠️ Video Search Failed for '{search_q}': {e}")
+                        # Continue without video - don't fail the whole request
                         continue
         
         return roadmap_json

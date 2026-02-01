@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = '/api/py'; // Standardize on Proxy, ignoring env for consistency with api.ts changes
 
 export interface GenerateRoadmapRequest {
     topic: string;
@@ -47,6 +47,8 @@ export const courseService = {
                 duration: lesson.duration || '10 min',
                 type: 'video', // Default
                 videoUrl: lesson.video ? lesson.video.link : '',
+                // CRITICAL: Backend returns video.video_id (snake_case)
+                videoId: lesson.video?.video_id || lesson.video_id,
                 videoThumbnail: lesson.video ? lesson.video.thumbnail : '',
                 status: 'locked' // Default
             }))

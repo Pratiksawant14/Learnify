@@ -76,8 +76,23 @@ class CourseService:
 
     @staticmethod
     def get_course_by_id(course_id: str):
-        response = supabase.table("courses").select("*").eq("id", course_id).single().execute()
-        return response.data
+        try:
+            response = supabase.table("courses").select("*").eq("id", course_id).single().execute()
+            return response.data
+        except Exception as e:
+            # .single() raises if no rows found. Return None to handle as 404.
+            print(f"Course not found for ID {course_id}: {e}")
+            return None
+
+    @staticmethod
+    def get_public_courses(limit: int = 20):
+        # Fetch recent courses for Explore/Public view
+        try:
+            response = supabase.table("courses").select("*").order("created_at", desc=True).limit(limit).execute()
+            return response.data
+        except Exception as e:
+            print(f"Error fetching public courses: {e}")
+            return []
 
     @staticmethod
     async def process_course_content(course_id: str):

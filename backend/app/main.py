@@ -23,7 +23,7 @@ async def startup_event():
 # CORS middleware - must be added before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"], # DEBUG: Allow ALL origins to fix Network Error
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -46,9 +46,25 @@ export default function VideoPlayerView({
     const [loadingExplanation, setLoadingExplanation] = useState(false);
 
     // Mock YouTube ID if not provided (using a generic coding video ID for demo)
-    const videoId = lesson?.videoId || "dQw4w9WgXcQ";
-    // Changing to a real coding related ID for less 'surprise':
-    const safeVideoId = lesson?.videoId || "PjFM63f538o";
+
+    // DEBUG: Log the full lesson object to troubleshoot "Video Unavailable"
+    console.log("VideoPlayerView: Current Lesson Object:", lesson);
+    console.log("VideoPlayerView: lesson.videoId =", lesson?.videoId);
+    console.log("VideoPlayerView: lesson.video_id =", (lesson as any)?.video_id);
+    console.log("VideoPlayerView: lesson.video =", (lesson as any)?.video);
+
+    // Support both camelCase (frontend convention) and snake_case (DB convention)
+    const rawId = lesson?.videoId || (lesson as any)?.video_id;
+
+    // Fallback if both are missing - SHOULD NOT BE USED
+    const safeVideoId = rawId || "PjFM63f538o";
+
+    console.log("VideoPlayerView: RAW ID FOUND:", rawId);
+    console.log("VideoPlayerView: Using video ID:", safeVideoId);
+
+    if (!rawId) {
+        console.error("⚠️ WARNING: No video ID found in lesson data! Using fallback. This means the course data is malformed.");
+    }
 
     // Fetch Transcript
     useEffect(() => {

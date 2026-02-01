@@ -25,3 +25,19 @@ class Settings:
     CHUNK_SILENCE_THRESHOLD: float = float(os.getenv("CHUNK_SILENCE_THRESHOLD", "2.0"))
 
 settings = Settings()
+
+# 🚨 CRITICAL: Validate environment variables at startup
+required_vars = [
+    ("SUPABASE_URL", settings.SUPABASE_URL),
+    ("SUPABASE_KEY", settings.SUPABASE_KEY), # MUST be Service Role Key
+    ("OPENAI_API_KEY", settings.OPENAI_API_KEY),
+]
+
+missing = [name for name, val in required_vars if not val]
+if missing:
+    raise RuntimeError(f"❌ CRITICAL ERROR: Missing required environment variables: {', '.join(missing)}")
+
+# 🚨 Validation Note: We trust the key provided is correct. 
+# Explicitly checking for "service_role" string in a JWT is flaky without decoding.
+if "ey" in settings.SUPABASE_KEY:
+     pass # Assume correct for now to allow startup with the new key

@@ -4,13 +4,7 @@ import traceback
 import logging
 
 from app.services.video_pipeline.video_shortlist_service import shortlist_service
-from app.services.video_pipeline.constraints_service import constraints_service
-from app.services.video_pipeline.transcript_service import transcript_service
-from app.services.video_pipeline.chunking_service import chunking_service
-from app.services.video_pipeline.embedding_service import embedding_service
-from app.services.video_pipeline.scoring_service import scoring_service
-from app.services.video_pipeline.lesson_service import lesson_service
-from app.services.video_pipeline.supplement_service import supplement_service
+# All transcript/AI services removed for STRICT VIDEO MODE
 from app.services.video_pipeline.persistence_service import persistence_service
 from app.services.video_pipeline.base import LessonPlan
 from app.utils.job_queue import job_manager, JobStatus
@@ -34,6 +28,20 @@ def run_assembly_pipeline_sync(course_id: str, job_id: str, force_rebuild: bool)
         course = res.data[0]
         roadmap = course.get("roadmap_json") or {}
         
+        # 🚨 QUOTA OPTIMIZATION: Search ONCE per Course
+        course_title = course.get("title", "Course")
+        # Broad search to gather a pool of candidates
+        pool_query = f"{course_title} full course tutorial education"
+        job_manager.add_log(job_id, f"Searching video pool: {pool_query}")
+        
+        try:
+            # Fetch 25 candidates once
+            video_pool = shortlist_service.search_candidates(pool_query, max_results=25)
+            job_manager.add_log(job_id, f"Video pool size: {len(video_pool)}")
+        except Exception as e:
+            logger.error(f"Pool search failed: {e}")
+            video_pool = []
+        
         # Structure: modules -> lessons
         modules = roadmap.get("modules", [])
         total_lessons = sum(len(m.get("lessons", [])) for m in modules)
@@ -49,72 +57,46 @@ def run_assembly_pipeline_sync(course_id: str, job_id: str, force_rebuild: bool)
                 
                 # Check if already has video (unless force_rebuild)
                 if not force_rebuild and lesson.get("video_id"):
-                    # Even if skipping, we might want to ensure embeddings exist?
-                    # For MVP, assume if video_id exists, it's done.
                     updated_lessons.append(lesson)
                     processed_count += 1
                     continue
                 
-                # PIPELINE STEPS
+                # STRICT VIDEO-ONLY PIPELINE
                 try:
-                    # A. Shortlist
-                    candidates = shortlist_service.search_candidates(lesson_title + " " + course.get("title", ""))
-                    if not candidates:
-                         # Fallback immediately
-                         raise Exception("No candidates found")
-                         
-                    # B. Constraints
-                    candidates = constraints_service.apply_constraints(candidates)
-                    
-                    # C. Transcripts
-                    candidates = transcript_service.fetch_for_candidates(candidates)
-                    
-                    # D. Chunking
-                    valid_candidates = [c for c in candidates if c.transcript_available]
-                    if valid_candidates:
-                        # Chunk ONLY valid ones
-                        chunks_map = chunking_service.chunk_candidates(valid_candidates)
-                        
-                        # E. Embedding (Upsert all chunks)
-                        all_chunks = []
-                        for chunks in chunks_map.values():
-                            all_chunks.extend(chunks)
-                        embedding_service.embed_and_store(all_chunks)
-                        
-                        # F. Scoring
-                        plan = LessonPlan(
-                            lesson_title=lesson_title, 
-                            lesson_keywords=[], 
-                            target_level=roadmap.get("level", "beginner"),
-                            description=lesson.get("description", "")
-                        )
-                        scored = scoring_service.score_candidates_for_lesson(plan, valid_candidates)
-                        
-                        # G. Selection
-                        final_node = lesson_service.select_best_match(plan, scored)
+                    # A. Select from POOL
+                    if video_pool:
+                        candidates = shortlist_service.select_best_from_pool(video_pool, lesson_title)
                     else:
-                        final_node = None
-                        
-                    # H. Supplement Fallback
-                    if not final_node:
-                        job_manager.add_log(job_id, f"No video match for {lesson_title}, generating supplement.")
-                        plan = LessonPlan(
-                            lesson_title=lesson_title, 
-                            lesson_keywords=[], 
-                            target_level=roadmap.get("level", "beginner"),
-                            description=lesson.get("description", "")
-                        )
-                        final_node = supplement_service.create_text_fallback(plan)
+                        candidates = []
+
+                    if not candidates:
+                         # STRICT VIDEO MODE: if no video, SKIP lesson
+                         job_manager.add_log(job_id, f"⚠️ STRICT MODE: Skipping lesson '{lesson_title}' - No video candidates.")
+                         continue
                     
-                    # Merge back into lesson object
+                    # B. Pick best video (already sorted by relevance)
+                    best = candidates[0]
+                    
+                    # C. Create minimal lesson node
+                    final_node = {
+                        "video_id": best.video_id,
+                        "videoId": best.video_id, # Frontend Compat: camelCase
+                        "title": best.title,
+                        "description": best.description or "",
+                        "duration": best.duration_seconds,
+                        "channel": best.channel_title,
+                    }
+                    job_manager.add_log(job_id, f"✅ Selected video '{best.title}' for lesson.")
+                    
+                    # D. Merge back into lesson object
                     lesson.update(final_node)
                     updated_lessons.append(lesson)
                     
                 except Exception as e:
                     logger.error(f"Error processing lesson {lesson_title}: {e}")
                     traceback.print_exc()
-                    lesson["error"] = str(e)
-                    updated_lessons.append(lesson)
+                    # Do not append lesson on error in strict mode
+                    continue
 
                 processed_count += 1
                 progress_pct = int((processed_count / total_lessons) * 100) if total_lessons > 0 else 100

@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.schemas.course import CourseCreate, CourseResponse
 from app.services.course_service import course_service
 from app.core.security import get_current_user, security
-from typing import List
+from typing import List, Optional
 
 router = APIRouter()
 
@@ -39,10 +39,25 @@ async def create_course(
     return result
 
 @router.get("/", response_model=List[CourseResponse])
-async def get_courses(user_payload: dict = Depends(get_current_user)):
-    user_id = user_payload.get("sub")
-    print(f"DEBUG: get_courses called for {user_id}")
-    return course_service.get_courses_by_user(user_id)
+async def get_courses(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
+):
+    user_id = None
+    if credentials:
+        try:
+            # Manually decode to check validity
+            from app.core.security import get_current_user
+            user_payload = get_current_user(credentials)
+            user_id = user_payload.get("sub")
+        except:
+            pass # Invalid token, treat as public
+            
+    print(f"DEBUG: get_courses called. User ID: {user_id}")
+    
+    if user_id:
+        return course_service.get_courses_by_user(user_id)
+    else:
+        return course_service.get_public_courses()
 
 @router.get("/{course_id}", response_model=CourseResponse)
 async def get_course(course_id: str):

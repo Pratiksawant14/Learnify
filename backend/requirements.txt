@@ -10,3 +10,4 @@ python-multipart
 youtube-search-python
 yt-dlp
 httpx==0.27.0
+youtube-transcript-api

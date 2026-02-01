@@ -1,4 +1,6 @@
-const API_URL = '/api/py'; // Standardize on Proxy, ignoring env for consistency with api.ts changes
+// Use proxy in development, direct URL in production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api/py';
+
 
 export interface GenerateRoadmapRequest {
     topic: string;
